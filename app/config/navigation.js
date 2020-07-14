@@ -1,7 +1,8 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+//import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Ionicons } from "@expo/vector-icons";
 
 import HomeScreen from "../screens/homeScreen";
@@ -33,44 +34,56 @@ const AuthStackScreens = () => (
   </AuthStack.Navigator>
 );
 
-const AppTabs = createBottomTabNavigator();
+const AppTabs = createMaterialTopTabNavigator();
 const AppTabsScreen = () => (
-  <AppTabs.Navigator>
+  <AppTabs.Navigator
+    tabBarPosition="bottom"
+    tabBarOptions={{
+      showIcon: "true",
+      showLabel: false,
+      iconStyle: {
+        alignItems: "center",
+        flex: 1,
+        maxHeight: 50,
+        maxWidth: 50,
+        height: 50,
+        width: 50,
+      },
+    }}
+  >
     <AppTabs.Screen
       name="Galleria"
       component={GalleryScreen}
       options={{
-        tabBarIcon: (props) => <Ionicons name="md-images" size={props.size} />,
+        tabBarIcon: (props) => <Ionicons name="md-images" size={50} />,
       }}
     ></AppTabs.Screen>
     <AppTabs.Screen
       name="Calendario"
       component={CalendarScreen}
       options={{
-        tabBarIcon: (props) => (
-          <Ionicons name="md-calendar" size={props.size} />
-        ),
+        tabBarIcon: (props) => <Ionicons name="md-calendar" size={50} />,
       }}
     ></AppTabs.Screen>
     <AppTabs.Screen
       name="Campionati"
       component={ChampionshipStackScreen}
       options={{
-        tabBarIcon: (props) => <Ionicons name="md-trophy" size={props.size} />,
+        tabBarIcon: (props) => <Ionicons name="md-trophy" size={50} />,
       }}
     ></AppTabs.Screen>
     <AppTabs.Screen
       name="User"
       component={UserScreen}
       options={{
-        tabBarIcon: (props) => <Ionicons name="md-person" size={props.size} />,
+        tabBarIcon: (props) => <Ionicons name="md-person" size={50} />,
       }}
     ></AppTabs.Screen>
   </AppTabs.Navigator>
 );
 
 export default ({ route }) => {
-  const [user, setUser] = React.useState({});
+  const [user, setUser] = React.useState(null);
   /* if (route.params?.user) {
     setUser();
   } */
