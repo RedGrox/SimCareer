@@ -28,9 +28,13 @@ const ChampionshipStackScreen = () => (
 
 const AuthStack = createStackNavigator();
 const AuthStackScreens = () => (
-  <AuthStack.Navigator>
+  <AuthStack.Navigator headerMode="none">
     <AuthStack.Screen name="LogIn" component={LogInScreen}></AuthStack.Screen>
     <AuthStack.Screen name="SignUp" component={SignUpScreen}></AuthStack.Screen>
+    <AuthStack.Screen
+      name="AppTabs"
+      component={AppTabsScreen}
+    ></AuthStack.Screen>
   </AuthStack.Navigator>
 );
 
@@ -83,13 +87,9 @@ const AppTabsScreen = () => (
 );
 
 export default ({ route }) => {
-  const [user, setUser] = React.useState(null);
-  /* if (route.params?.user) {
-    setUser();
-  } */
   return (
     <NavigationContainer>
-      {user ? <AppTabsScreen /> : <AuthStackScreens />}
+      <AuthStackScreens />
     </NavigationContainer>
   );
 };
