@@ -72,9 +72,12 @@ const styles = StyleSheet.create({
   },
 });
 
-const RewiewSchema = yup.object({
-  mail: yup.string().required().email(),
-  password: yup.string().required().min(3),
+const ReviewSchema = yup.object({
+  mail: yup
+    .string()
+    .required("Il campo è obbligatorio")
+    .email("Inserire una mail valida"),
+  password: yup.string().required("Il campo è obbligatorio").min(4),
 });
 
 const signInScreen = ({ navigation }) => {
@@ -95,13 +98,19 @@ const signInScreen = ({ navigation }) => {
           }}
         >
           <View style={styles.alignViewContent}>
-            <View style={(styles.fl, { flex: 2 })}>
-              <View style={{ paddingTop: StatusBar.currentHeight }}>
-                <Image
-                  style={{ flex: 1, resizeMode: "contain" }}
-                  source={require("../assets/bdLogo.png")}
-                />
-              </View>
+            <View
+              style={{
+                flex: 2,
+                paddingTop: StatusBar.currentHeight,
+              }}
+            >
+              <Image
+                style={{
+                  flex: 1,
+                  resizeMode: "contain",
+                }}
+                source={require("../assets/bdLogo.png")}
+              />
             </View>
             <View style={styles.fl}>
               <View style={mailPsw ? styles.mailPswView : { display: "none" }}>
@@ -109,7 +118,7 @@ const signInScreen = ({ navigation }) => {
               </View>
               <Formik
                 initialValues={{ mail: "", password: "" }}
-                validationSchema={RewiewSchema}
+                validationSchema={ReviewSchema}
                 onSubmit={(values) => {
                   fetch("http://192.168.1.117:3000/utenti/login", {
                     method: "POST",
@@ -172,20 +181,18 @@ const signInScreen = ({ navigation }) => {
                 )}
               </Formik>
             </View>
-            <View style={styles.fl}>
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: "column-reverse",
-                  justifyContent: "flex-start",
-                }}
-              >
-                <Image
-                  style={{ height: 30 }}
-                  source={require("../assets/longArrow.png")}
-                ></Image>
-                <Text>Scorri a destra per la registrazione</Text>
-              </View>
+            <View
+              style={{
+                flex: 0.5,
+                flexDirection: "column-reverse",
+                justifyContent: "flex-start",
+              }}
+            >
+              <Image
+                style={{ height: 30 }}
+                source={require("../assets/longArrow.png")}
+              ></Image>
+              <Text>Scorri verso sinistra per la registrazione</Text>
             </View>
           </View>
         </ScrollView>
