@@ -1,1 +1,1 @@
-global.userId = null;
+global.user = null;

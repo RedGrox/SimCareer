@@ -12,7 +12,6 @@ import GalleryScreen from "../screens/galleryScreen";
 import CalendarScreen from "../screens/calendarScreen";
 import UserScreen from "../screens/userDetailScreen";
 import LogInScreen from "../screens/loginScreen";
-import SignUpScreen from "../screens/signUpScreen";
 
 const ChampionshipStack = createStackNavigator();
 const ChampionshipStackScreen = () => (
@@ -30,7 +29,6 @@ const AuthStack = createStackNavigator();
 const AuthStackScreens = () => (
   <AuthStack.Navigator headerMode="none">
     <AuthStack.Screen name="LogIn" component={LogInScreen}></AuthStack.Screen>
-    <AuthStack.Screen name="SignUp" component={SignUpScreen}></AuthStack.Screen>
     <AuthStack.Screen
       name="AppTabs"
       component={AppTabsScreen}
