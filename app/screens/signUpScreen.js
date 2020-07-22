@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   Button,
   StyleSheet,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
@@ -14,7 +15,9 @@ import {
 } from "react-native";
 import { Formik } from "formik";
 import * as yup from "yup";
-import { setStatusBarNetworkActivityIndicatorVisible } from "expo-status-bar";
+import moment from "moment";
+import { CommonActions } from "@react-navigation/native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const styles = StyleSheet.create({
   background: {
@@ -61,15 +64,42 @@ const ReviewSchema = yup.object({
   nome: yup
     .string()
     .required("Il campo è obbligatorio")
-    .matches(/[::alpha::]/, "Inserire solo lettere"),
+    .test("onlyAlphaIn", "Inserire solo lettere", (value) => {
+      if (value !== undefined)
+        return value.match(/[0-9!/"£$%&()=?^@#§*]/) === null;
+    }),
   cognome: yup
     .string()
     .required("Il campo è obbligatorio")
-    .matches(/[a-zA-Z]/, "Inserire solo lettere"),
-  residenza: yup.string(),
+    .test("onlyAlphaIn", "Inserire solo lettere", (value) => {
+      if (value !== undefined)
+        return value.match(/[0-9!/"£$%&()=?^@#§*]/) === null;
+    }),
+  dataNascita: yup.string().required("Il campo data è obbligatorio"),
 });
 
 export default ({ navigation }) => {
+  const [datePickerState, setDatePickerState] = React.useState({
+    visibility: false,
+    dateDisplay: "",
+  });
+  let handleConfirm = (date) => {
+    setDatePickerState({
+      dateDisplay: moment(date).format("DD/MM/YYYY"),
+    });
+  };
+  let onPressCancel = () => {
+    setDatePickerState({ visibility: false });
+  };
+  let onPresstextInput = () => {
+    setDatePickerState({ visibility: true });
+  };
+  function handleChangeOnFormik(props) {
+    props.values.dataNascita = datePickerState.dateDisplay;
+    props.handleChange("dataNascita");
+    props.handleBlur("dataNascita");
+    return datePickerState.dateDisplay;
+  }
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.background}>
@@ -102,7 +132,42 @@ export default ({ navigation }) => {
                 }}
                 validationSchema={ReviewSchema}
                 onSubmit={(values) => {
-                  console.log(values);
+                  console.log("submit");
+                  fetch("http://192.168.1.117:3000/utenti", {
+                    method: "POST",
+                    dataType: "json",
+                    headers: {
+                      Accept: "application/json",
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify([
+                      {
+                        id: "",
+                        mail: values.mail,
+                        password: values.password,
+                        nome: values.nome,
+                        cognome: values.cognome,
+                        residenza: values.residenza,
+                        dataNascita: values.dataNascita,
+                        numeroGara: "",
+                        circuitoPreferito: "",
+                        circuitoOdiato: "",
+                        autoPreferita: "",
+                        campionatiPreferiti: [],
+                      },
+                    ]),
+                  }).then((response) => {
+                    if (response.status === 200) {
+                      navigation.dispatch(
+                        CommonActions.reset({
+                          index: 0,
+                          routes: [{ name: "signIn" }],
+                        })
+                      );
+                    } else {
+                      console.log("errore nel post");
+                    }
+                  });
                 }}
               >
                 {(props) => (
@@ -159,15 +224,24 @@ export default ({ navigation }) => {
                     <Text style={styles.textErr}>
                       {props.touched.cognome && props.errors.cognome}
                     </Text>
-                    <TextInput
-                      style={styles.textInput}
-                      placeholder="Data di nascita"
-                      onChangeText={props.handleChange("dataNascita")}
-                      value={props.values.dataNascita}
-                      onBlur={props.handleBlur("dataNascita")}
-                    ></TextInput>
+                    <TouchableOpacity onPress={onPresstextInput}>
+                      <TextInput
+                        style={styles.textInput}
+                        placeholder="Data di nascita"
+                        value={handleChangeOnFormik(props)}
+                        editable={false}
+                      ></TextInput>
+                    </TouchableOpacity>
+                    <DateTimePickerModal
+                      isVisible={datePickerState.visibility}
+                      onConfirm={handleConfirm}
+                      onCancel={onPressCancel}
+                      mode="date"
+                      maximumDate={new Date()}
+                      locale="en-GB"
+                    ></DateTimePickerModal>
                     <Text style={styles.textErr}>
-                      {props.touched.cognome && props.errors.cognome}
+                      {props.touched.dataNascita && props.errors.dataNascita}
                     </Text>
                     <TextInput
                       style={styles.textInput}
@@ -176,9 +250,7 @@ export default ({ navigation }) => {
                       value={props.values.residenza}
                       onBlur={props.handleBlur("residenza")}
                     ></TextInput>
-                    <Text style={styles.textErr}>
-                      {props.touched.residenza && props.errors.residenza}
-                    </Text>
+                    <Text style={styles.textErr}>{props.errors.residenza}</Text>
                     <Button
                       title="Registrati"
                       onPress={props.handleSubmit}
