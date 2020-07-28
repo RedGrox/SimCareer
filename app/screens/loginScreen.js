@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CommonActions } from "@react-navigation/native";
 import {
   View,
@@ -12,7 +12,9 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  AsyncStorage,
 } from "react-native";
+import CheckBox from "@react-native-community/checkbox";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -81,6 +83,9 @@ const ReviewSchema = yup.object({
 });
 
 const signInScreen = ({ navigation }) => {
+  const [utMail, setMail] = useState("");
+  const [utPsw, setPsw] = useState("");
+
   const [mailPsw, setMailPsw] = useState(false);
   const badStatus = () => {
     setMailPsw(true);
@@ -88,6 +93,61 @@ const signInScreen = ({ navigation }) => {
   const goodStatus = () => {
     setMailPsw(false);
   };
+  const setUserData = (mail, psw) => {
+    setMail(mail);
+    setPsw(psw);
+  };
+  let boolTouchedMail = false;
+  let boolTouchedPsw = false;
+  const saveUser = async (email, psw) => {
+    let userData = { mail: email, password: psw };
+    try {
+      await AsyncStorage.setItem("userData", JSON.stringify(userData));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const loadUser = async () => {
+    let rawUserData;
+    try {
+      rawUserData = await AsyncStorage.getItem("userData");
+      let userData = JSON.parse(rawUserData);
+      if (userData !== null) {
+        setUserData(userData.mail, userData.password);
+      } else {
+        boolTouchedMail = true;
+        boolTouchedPsw = true;
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    loadUser();
+  }, []);
+
+  const updateLoadedMail = (props) => {
+    if (!boolTouchedMail) {
+      props.values.mail = utMail;
+      boolTouchedMail = true;
+      props.values.rememberMe = true;
+      return utMail;
+    } else {
+      return props.values.mail;
+    }
+  };
+  const updateLoadedPsw = (props) => {
+    if (!boolTouchedPsw) {
+      props.values.password = utPsw;
+      boolTouchedPsw = true;
+      return utPsw;
+    } else {
+      return props.values.password;
+    }
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.background}>
@@ -117,7 +177,11 @@ const signInScreen = ({ navigation }) => {
                 <Text>Mail o password errate</Text>
               </View>
               <Formik
-                initialValues={{ mail: "", password: "" }}
+                initialValues={{
+                  mail: utMail,
+                  password: utPsw,
+                  rememberMe: false,
+                }}
                 validationSchema={ReviewSchema}
                 onSubmit={(values) => {
                   fetch("http://192.168.1.117:3000/utenti/login", {
@@ -142,6 +206,9 @@ const signInScreen = ({ navigation }) => {
                     })
                     .then((response) => {
                       if (response) {
+                        if (values.rememberMe) {
+                          saveUser(response.mail, values.password);
+                        }
                         global.user = response;
                         navigation.dispatch(
                           CommonActions.reset({
@@ -154,12 +221,12 @@ const signInScreen = ({ navigation }) => {
                 }}
               >
                 {(props) => (
-                  <View style={{ flex: 1, justifyContent: "space-evenly" }}>
+                  <View style={{ flex: 1.5, justifyContent: "space-evenly" }}>
                     <TextInput
                       style={styles.textInput}
                       placeholder="Mail"
                       onChangeText={props.handleChange("mail")}
-                      value={props.values.mail}
+                      value={updateLoadedMail(props)}
                       onBlur={props.handleBlur("mail")}
                     ></TextInput>
                     <Text style={styles.textErr}>
@@ -170,12 +237,31 @@ const signInScreen = ({ navigation }) => {
                       placeholder="Password"
                       secureTextEntry={true}
                       onChangeText={props.handleChange("password")}
-                      value={props.values.password}
+                      value={updateLoadedPsw(props)}
                       onBlur={props.handleBlur("password")}
                     ></TextInput>
                     <Text style={styles.textErr}>
                       {props.touched.password && props.errors.password}
                     </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        paddingBottom: 20,
+                      }}
+                    >
+                      <CheckBox
+                        title="Remember Me"
+                        value={props.values.rememberMe}
+                        onValueChange={() => {
+                          props.setFieldValue(
+                            "rememberMe",
+                            !props.values.rememberMe
+                          );
+                        }}
+                      />
+                      <Text>Remember Me!</Text>
+                    </View>
                     <Button title="LogIn" onPress={props.handleSubmit}></Button>
                   </View>
                 )}

@@ -15,7 +15,11 @@ import LogInScreen from "../screens/loginScreen";
 
 const ChampionshipStack = createStackNavigator();
 const ChampionshipStackScreen = () => (
-  <ChampionshipStack.Navigator>
+  <ChampionshipStack.Navigator
+    screenOptions={{
+      headerShown: false,
+    }}
+  >
     <ChampionshipStack.Screen name="HomeScreen" component={HomeScreen} />
     <ChampionshipStack.Screen
       name="ChampionshipScreen"
@@ -39,6 +43,7 @@ const AuthStackScreens = () => (
 const AppTabs = createMaterialTopTabNavigator();
 const AppTabsScreen = () => (
   <AppTabs.Navigator
+    initialRouteName="Campionati"
     tabBarPosition="bottom"
     tabBarOptions={{
       showIcon: "true",
@@ -46,10 +51,10 @@ const AppTabsScreen = () => (
       iconStyle: {
         alignItems: "center",
         flex: 1,
-        maxHeight: 50,
-        maxWidth: 50,
-        height: 50,
-        width: 50,
+        maxHeight: 40,
+        maxWidth: 40,
+        height: 40,
+        width: 40,
       },
     }}
   >
@@ -57,28 +62,28 @@ const AppTabsScreen = () => (
       name="Galleria"
       component={GalleryScreen}
       options={{
-        tabBarIcon: (props) => <Ionicons name="md-images" size={50} />,
+        tabBarIcon: (props) => <Ionicons name="md-images" size={40} />,
       }}
     ></AppTabs.Screen>
     <AppTabs.Screen
       name="Calendario"
       component={CalendarScreen}
       options={{
-        tabBarIcon: (props) => <Ionicons name="md-calendar" size={50} />,
+        tabBarIcon: (props) => <Ionicons name="md-calendar" size={40} />,
       }}
     ></AppTabs.Screen>
     <AppTabs.Screen
       name="Campionati"
       component={ChampionshipStackScreen}
       options={{
-        tabBarIcon: (props) => <Ionicons name="md-trophy" size={50} />,
+        tabBarIcon: (props) => <Ionicons name="md-trophy" size={40} />,
       }}
     ></AppTabs.Screen>
     <AppTabs.Screen
       name="User"
       component={UserScreen}
       options={{
-        tabBarIcon: (props) => <Ionicons name="md-person" size={50} />,
+        tabBarIcon: (props) => <Ionicons name="md-person" size={40} />,
       }}
     ></AppTabs.Screen>
   </AppTabs.Navigator>
