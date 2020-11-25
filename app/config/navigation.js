@@ -45,6 +45,7 @@ const AppTabsScreen = () => (
   <AppTabs.Navigator
     initialRouteName="Campionati"
     tabBarPosition="bottom"
+    swipeEnabled={false}
     tabBarOptions={{
       showIcon: "true",
       showLabel: false,
