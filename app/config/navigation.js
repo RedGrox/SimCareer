@@ -5,13 +5,14 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Ionicons } from "@expo/vector-icons";
 
-import HomeScreen from "../screens/homeScreen";
+import HomeScreen from "../screens/homeScreen2";
 import ChampionshipScreen from "../screens/championshipScreen";
 import RaceScreen from "../screens/raceScreen";
 import GalleryScreen from "../screens/galleryScreen";
 import CalendarScreen from "../screens/calendarScreen";
 import UserScreen from "../screens/userDetailScreen";
 import LogInScreen from "../screens/loginScreen";
+import { Dimensions } from "react-native";
 
 const ChampionshipStack = createStackNavigator();
 const ChampionshipStackScreen = () => (
@@ -44,8 +45,10 @@ const AppTabs = createMaterialTopTabNavigator();
 const AppTabsScreen = () => (
   <AppTabs.Navigator
     initialRouteName="Campionati"
+    initialLayout={{ width: Dimensions.get("window").width }}
     tabBarPosition="bottom"
     swipeEnabled={false}
+    lazy={true}
     tabBarOptions={{
       showIcon: "true",
       showLabel: false,
@@ -92,7 +95,7 @@ const AppTabsScreen = () => (
 
 export default ({ route }) => {
   return (
-    <NavigationContainer>
+    <NavigationContainer style={{ flex: 1 }}>
       <AuthStackScreens />
     </NavigationContainer>
   );
