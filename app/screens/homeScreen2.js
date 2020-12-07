@@ -45,7 +45,7 @@ const AllChampionships = ({ navigation }) => {
       logo={item.logo}
       partecipanti={item.pilotiIscritti.length}
       id={item.id}
-      pref={champ.pref}
+      navigation={navigation}
     />
   );
 
@@ -71,7 +71,7 @@ const PrefChampionships = ({ navigation }) => {
           logo={item.logo}
           partecipanti={item.pilotiIscritti.length}
           id={item.id}
-          pref={champ.pref}
+          navigation={navigation}
         />
       ) : (
         <View></View>
@@ -105,11 +105,7 @@ const HomeScreen = ({ route }) => (
 );
 
 export default ({ navigation }) => {
-  return (
-    <ChampionshipsProvider>
-      <HomeScreen />
-    </ChampionshipsProvider>
-  );
+  return <HomeScreen />;
 };
 
 const styles = StyleSheet.create({

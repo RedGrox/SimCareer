@@ -7,10 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  ChampionshipsContext,
-  ChampionshipsProvider,
-} from "../config/provider/ChampionshipsProvider";
+import { ChampionshipsContext } from "../config/provider/ChampionshipsProvider";
 
 const BASE_LINK = "http://192.168.1.117:3000/img/";
 
@@ -72,29 +69,35 @@ const VoidStar = (id) => {
   );
 };
 
-const ItemChampionship = ({ title, logo, partecipanti, id, pref }) => {
+const ItemChampionship = ({ title, logo, partecipanti, id, navigation }) => {
   const champ = useContext(ChampionshipsContext);
   return (
-    <View style={styles.item}>
-      <View style={styles.logo}>
-        <Image
-          style={styles.img}
-          resizeMode="cover"
-          source={{ uri: BASE_LINK + logo }}
-        />
+    <TouchableOpacity
+      onPress={() =>
+        navigation.push("ChampionshipScreen", { idCampionato: id })
+      }
+    >
+      <View style={styles.item}>
+        <View style={styles.logo}>
+          <Image
+            style={styles.img}
+            resizeMode="cover"
+            source={{ uri: BASE_LINK + logo }}
+          />
+        </View>
+        <View style={styles.textArea}>
+          <Text style={styles.title}>{title}</Text>
+          <Text>{partecipanti}/24</Text>
+        </View>
+        <View style={styles.starView}>
+          {champ.pref.includes(parseInt(id, 10)) ? (
+            <FilledStar id={id} />
+          ) : (
+            <VoidStar id={id} />
+          )}
+        </View>
       </View>
-      <View style={styles.textArea}>
-        <Text style={styles.title}>{title}</Text>
-        <Text>{partecipanti}/24</Text>
-      </View>
-      <View style={styles.starView}>
-        {champ.pref.includes(parseInt(id, 10)) ? (
-          <FilledStar id={id} />
-        ) : (
-          <VoidStar id={id} />
-        )}
-      </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

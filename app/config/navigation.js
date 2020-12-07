@@ -14,20 +14,24 @@ import UserScreen from "../screens/userDetailScreen";
 import LogInScreen from "../screens/loginScreen";
 import { Dimensions } from "react-native";
 
+import { ChampionshipsProvider } from "../config/provider/ChampionshipsProvider";
+
 const ChampionshipStack = createStackNavigator();
 const ChampionshipStackScreen = () => (
-  <ChampionshipStack.Navigator
-    screenOptions={{
-      headerShown: false,
-    }}
-  >
-    <ChampionshipStack.Screen name="HomeScreen" component={HomeScreen} />
-    <ChampionshipStack.Screen
-      name="ChampionshipScreen"
-      component={ChampionshipScreen}
-    />
-    <ChampionshipStack.Screen name="RaceScreen" component={RaceScreen} />
-  </ChampionshipStack.Navigator>
+  <ChampionshipsProvider>
+    <ChampionshipStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <ChampionshipStack.Screen name="HomeScreen" component={HomeScreen} />
+      <ChampionshipStack.Screen
+        name="ChampionshipScreen"
+        component={ChampionshipScreen}
+      />
+      <ChampionshipStack.Screen name="RaceScreen" component={RaceScreen} />
+    </ChampionshipStack.Navigator>
+  </ChampionshipsProvider>
 );
 
 const AuthStack = createStackNavigator();

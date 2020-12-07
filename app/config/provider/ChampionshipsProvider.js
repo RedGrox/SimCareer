@@ -6,6 +6,8 @@ const ChampionshipsProvider = (props) => {
   const [champData, setChampData] = useState([]);
   const [pref, setPref] = useState([]);
   const [need2Update, setUpdate] = useState(true);
+  const [singleChampionship, setChamp] = useState({});
+  const [singleRace, setRace] = useState({});
 
   const setAll = (data) => {
     setChampData(data.campionati);
@@ -17,7 +19,17 @@ const ChampionshipsProvider = (props) => {
   };
   return (
     <ChampionshipsContext.Provider
-      value={{ champData, pref, need2Update, setAll, setUpdateBoolean }}
+      value={{
+        champData,
+        pref,
+        need2Update,
+        singleChampionship,
+        singleRace,
+        setAll,
+        setUpdateBoolean,
+        setChamp,
+        setRace,
+      }}
     >
       {props.children}
     </ChampionshipsContext.Provider>
