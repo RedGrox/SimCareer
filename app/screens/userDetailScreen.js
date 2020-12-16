@@ -50,6 +50,52 @@ const userDetailScreen = ({ navigation }) => {
     </View>
   );
 };
+
+/* return (
+    <View style={styles.background}>
+      <View style={styles.headerUser}>
+        <View
+          style={{
+            flex: 1,
+          }}
+        >
+          <Image
+            style={{
+              flex: 1,
+              resizeMode: "contain",
+              borderWidth: 1,
+              height: "100%",
+              width: "100%",
+            }}
+            source={require("../assets/helmetLogoPng.png")}
+          />
+        </View>
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "space-evenly",
+          }}
+        >
+          <Text>NickName</Text>
+          <Image
+            style={{
+              flex: 1,
+              position: "absolute",
+              height: "15%",
+              width: "15%",
+              top: 10,
+              right: 10,
+            }}
+            source={require("../assets/3Dot.png")}
+          />
+        </View>
+      </View>
+      <View style={styles.bodyUser}>
+        <BodyDetailUserScreen />
+      </View>
+    </View>
+  ); */
 const styles = StyleSheet.create({
   background: {
     paddingTop: StatusBar.currentHeight,

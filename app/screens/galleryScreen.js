@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Button } from "react-native";
 
 function galleryScreen({ navigation }) {
   return (
-    <View style={styles.background}>
+    <View style={{ flex: 1, backgroundColor: "red" }}>
       <Text>gallery Screen</Text>
     </View>
   );

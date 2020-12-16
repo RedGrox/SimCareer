@@ -177,15 +177,15 @@ const AllChampionships = ({ navigation }) => {
         <Text>{title}</Text>
         <Text>{partecipanti}/24</Text>
       </View>
-      <View style={styles.starView}>
+    </View>
+  );
+  /* <View style={styles.starView}>
         {pref.includes(parseInt(id, 10)) ? (
           <FilledStar id={id} />
         ) : (
           <VoidStar id={id} />
         )}
-      </View>
-    </View>
-  );
+      </View> */
   const renderItem = ({ item }) => (
     <ItemChampionship
       title={item.nome}
@@ -202,14 +202,15 @@ const AllChampionships = ({ navigation }) => {
     });
   }
   return (
-    <View style={styles.background}>
-      <FlatList
+    <View>
+      <Text>home</Text>
+    </View>
+  );
+  /* <FlatList
         data={championshipData.data}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-      />
-    </View>
-  );
+      /> */
 };
 /* <Button title="Championship"
         onPress={() => navigation.push("ChampionshipScreen")}></Button> */
@@ -260,16 +261,15 @@ const PrefChampionships = ({ navigation }) => {
         <Text>{title}</Text>
         <Text>{partecipanti}/24</Text>
       </View>
-      <View style={styles.starView}>
+    </View>
+  );
+  /* <View style={styles.starView}>
         {pref.includes(parseInt(id, 10)) ? (
           <FilledStar id={id} />
         ) : (
           <VoidStar id={id} />
         )}
-      </View>
-    </View>
-  );
-
+      </View> */
   const renderItem = ({ item }) => (
     <View>
       {championshipData.pref.includes(parseInt(item.id, 10)) ? (
@@ -292,16 +292,16 @@ const PrefChampionships = ({ navigation }) => {
     });
   }
   return (
-    <View style={styles.background2}>
-      <FlatList
+    <View>
+      <Text>Pref</Text>
+    </View>
+  );
+  /* <FlatList
         data={championshipData.data}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-      />
-    </View>
-  );
+      /> */
 };
-/*  */
 
 export default ({ navigation }) => {
   return <HomeScreen />;
