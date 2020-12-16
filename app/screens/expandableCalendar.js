@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   Button,
+  Image,
   Dimensions,
   StatusBar,
 } from "react-native";
@@ -51,7 +52,6 @@ async function getDates() {
     }
   );
   const data = await response.json();
-  console.log(data);
   return data;
 }
 
@@ -112,7 +112,21 @@ export default class ExpandableCalendarScreen extends Component {
           <Text style={styles.itemTitleText}>{item.campionato}</Text>
           <Text>{item.circuito}</Text>
         </View>
-        <View style={styles.wheaterView}></View>
+        <View style={styles.wheaterView}>
+          {Object.keys(item.meteo).length !== 0 ? (
+            <Image
+              style={styles.raceMeteoImage}
+              source={{
+                uri:
+                  "http://openweathermap.org/img/wn/" +
+                  item.meteo.icon +
+                  "@4x.png",
+              }}
+            />
+          ) : (
+            <View />
+          )}
+        </View>
       </TouchableOpacity>
     );
   };
@@ -201,6 +215,7 @@ export default class ExpandableCalendarScreen extends Component {
   render() {
     return (
       <CalendarProvider
+        testID={"expandableCalendar"}
         date={today}
         onDateChanged={this.onDateChanged}
         onMonthChange={this.onMonthChange}
@@ -213,9 +228,14 @@ export default class ExpandableCalendarScreen extends Component {
         // todayBottomMargin={16}
       >
         {this.props.weekView ? (
-          <WeekCalendar firstDay={1} markedDates={this.getMarkedDates()} />
+          <WeekCalendar
+            testID={"expandableCalendar"}
+            firstDay={1}
+            markedDates={this.getMarkedDates()}
+          />
         ) : (
           <ExpandableCalendar
+            testID={"expandableCalendar"}
             // horizontal={false}
             // hideArrows
             // disablePan
@@ -233,6 +253,7 @@ export default class ExpandableCalendarScreen extends Component {
           />
         )}
         <AgendaList
+          testID={"expandableCalendar"}
           sections={this.state.items}
           extraData={this.state}
           renderItem={this.renderItem}
@@ -271,7 +292,7 @@ const styles = StyleSheet.create({
   },
   item: {
     padding: 20,
-    backgroundColor: "white",
+    backgroundColor: "#c2c2c2",
     borderBottomWidth: 1,
     borderBottomColor: "lightgrey",
     flexDirection: "row",
@@ -307,8 +328,10 @@ const styles = StyleSheet.create({
     color: "lightgrey",
     fontSize: 14,
   },
+  raceMeteoImage: { height: 50, width: 50 },
   wheaterView: {
     flex: 1,
-    backgroundColor: "red",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

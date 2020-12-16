@@ -11,10 +11,13 @@ import {
   FlatList,
   ScrollView,
   LogBox,
+  SafeAreaView,
 } from "react-native";
 import { ChampionshipsContext } from "../config/provider/ChampionshipsProvider";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import Accordion from "react-native-collapsible/Accordion";
+import Modal from "react-native-modal";
+import DropDownPicker from "react-native-dropdown-picker";
 
 const BASE_LINK = "http://192.168.1.117:3000/img/";
 
@@ -50,10 +53,63 @@ async function getClassifica(idCampionato) {
   return data;
 }
 
+async function getTeams() {
+  const response = await fetch("http://192.168.1.117:3000/team/getTeams/", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ arg: [] }),
+  });
+  const data = await response.json();
+  return data;
+}
+
+async function iscriviti(idCampionato, team, auto) {
+  const response = await fetch(
+    "http://192.168.1.117:3000/campionati/addInChamp/",
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idChamp: idCampionato,
+        idUt: global.user.id,
+        team: team,
+        auto: auto,
+      }),
+    }
+  );
+  const data = await response.json();
+  return data;
+}
+
+async function disiscriviti(idCampionato) {
+  const response = await fetch(
+    "http://192.168.1.117:3000/campionati/removeFromChamp/" +
+      idCampionato +
+      "/" +
+      global.user.id,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  const data = await response.json();
+  return data;
+}
+
 function championshipScreen({ route, navigation }) {
   const context = useContext(ChampionshipsContext);
-  const thisChamp = context.champData[route.params.idCampionato];
+  let thisChamp;
   useEffect(() => {
+    thisChamp = context.champData[route.params.idCampionato];
     let arg = [];
     for (let i = 0; i < thisChamp.calendario.length; i++) {
       arg.push(thisChamp.calendario[i].idCircuito);
@@ -68,6 +124,24 @@ function championshipScreen({ route, navigation }) {
     }
     LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
   }, []);
+
+  useEffect(() => {
+    if (Object.keys(context.singleChampionship).length !== 0) {
+      thisChamp = context.champData[route.params.idCampionato];
+      let arg = [];
+      for (let i = 0; i < thisChamp.calendario.length; i++) {
+        arg.push(thisChamp.calendario[i].idCircuito);
+      }
+      if (arg.length > 0) {
+        getCircuiti(arg).then((circuiti) => {
+          updateChamp(circuiti);
+          context.setChamp(thisChamp);
+        });
+      } else {
+        context.setChamp(thisChamp);
+      }
+    }
+  }, [context.champData]);
 
   const updateChamp = (circuiti) => {
     for (let i = 0; i < thisChamp.calendario.length; i++) {
@@ -91,6 +165,44 @@ function championshipScreen({ route, navigation }) {
 
 const HeaderChampionship = ({ navigation }) => {
   const context = useContext(ChampionshipsContext);
+  const [isVisible, setModalVisible] = useState(false);
+  const [teams, setTeams] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [cars, setCars] = useState([]);
+  const [selectedCar, setSelectedCar] = useState(null);
+  const [openDropDown, setOpenDropDown] = useState([false, false]);
+
+  const changeVisDrop = (id) => {
+    if (id == 0) {
+      setOpenDropDown([true, false]);
+    } else {
+      setOpenDropDown([false, true]);
+    }
+  };
+  useEffect(() => {
+    getTeams().then((teams) => {
+      let teamsArray = [];
+      for (let i = 0; i < teams.length; i++) {
+        let tmp = { value: teams[i].nome, label: teams[i].nome };
+        teamsArray.push(tmp);
+      }
+      setTeams(teamsArray);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (context.singleChampionship.lista_auto !== undefined) {
+      let carsArray = [];
+      for (let i = 0; i < context.singleChampionship.lista_auto.length; i++) {
+        let tmp = {
+          value: context.singleChampionship.lista_auto[i].modello,
+          label: context.singleChampionship.lista_auto[i].modello,
+        };
+        carsArray.push(tmp);
+      }
+      setCars(carsArray);
+    }
+  }, [context.singleChampionship]);
 
   const imRegistered = (idUt) => {
     if (Object.keys(context.singleChampionship).length !== 0) {
@@ -109,6 +221,96 @@ const HeaderChampionship = ({ navigation }) => {
 
   return (
     <View style={styles.header}>
+      <Modal
+        animationType="slide"
+        visible={isVisible}
+        onBackdropPress={() => {
+          setModalVisible(false);
+        }}
+      >
+        <View style={styles.modalView}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "flex-start",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ fontSize: 20, fontWeight: "bold", marginTop: 10 }}>
+              Registrazione
+            </Text>
+            <DropDownPicker
+              items={teams}
+              defaultValue={selectedTeam}
+              containerStyle={{
+                marginTop: 20,
+                height: 40,
+                width: Dimensions.get("window").width * 0.5,
+              }}
+              isVisible={openDropDown[0]}
+              onClose={() => {
+                openDropDown[0] = false;
+              }}
+              onOpen={() => {
+                changeVisDrop(0);
+              }}
+              onChangeItem={(item) => setSelectedTeam(item.value)}
+              placeholder={"Seleziona un team"}
+              zIndex={5000}
+            />
+            <DropDownPicker
+              items={cars}
+              defaultValue={selectedCar}
+              containerStyle={{
+                marginTop: 20,
+                height: 40,
+                width: Dimensions.get("window").width * 0.5,
+              }}
+              isVisible={openDropDown[1]}
+              onClose={() => {
+                openDropDown[1] = false;
+              }}
+              onOpen={() => {
+                changeVisDrop(1);
+              }}
+              onChangeItem={(item) => setSelectedCar(item.value)}
+              placeholder={"Seleziona una macchina"}
+              zIndex={4000}
+            />
+          </View>
+          <TouchableOpacity
+            style={{
+              height: 40,
+              width: Dimensions.get("window").width * 0.3,
+              backgroundColor:
+                selectedTeam != null && selectedCar != null
+                  ? "#4adeff"
+                  : "#e3e3e3",
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 30,
+              zIndex: -1,
+            }}
+            disabled={
+              selectedTeam != null && selectedCar != null ? false : true
+            }
+            onPress={() => {
+              iscriviti(
+                context.singleChampionship.id,
+                selectedTeam,
+                selectedCar
+              ).then((response) => {
+                if (response.updated == true) {
+                  context.setUpdateBoolean(true);
+                  setModalVisible(false);
+                }
+              });
+            }}
+          >
+            <Text>Iscriviti</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
       <TouchableOpacity
         style={styles.backTouchable}
         onPress={() => navigation.goBack()}
@@ -126,11 +328,32 @@ const HeaderChampionship = ({ navigation }) => {
         ></Image>
       </View>
       <View style={styles.infoView}>
-        <Text style={styles.infoTitle}>{context.singleChampionship.nome}</Text>
+        <View>
+          <Text style={styles.infoTitle}>
+            {context.singleChampionship.nome}
+          </Text>
+          <Text style={{ alignSelf: "center" }}>
+            Piloti Iscritti: {context.singleChampionship.pilotiIscritti.length}
+          </Text>
+        </View>
         {imRegistered(global.user.id) ? (
-          <Button title="Disiscriviti"></Button>
+          <Button
+            title="Disiscriviti"
+            onPress={() => {
+              disiscriviti(context.singleChampionship.id).then((response) => {
+                if (response.updated == true) {
+                  context.setUpdateBoolean(true);
+                }
+              });
+            }}
+          ></Button>
         ) : (
-          <Button title="Iscriviti"></Button>
+          <Button
+            title="Iscriviti"
+            onPress={() => {
+              setModalVisible(true);
+            }}
+          ></Button>
         )}
       </View>
     </View>
@@ -201,10 +424,25 @@ const RaceItem = ({ item }) => {
           <Text>{item.ora}</Text>
         </View>
       </View>
-      <View style={styles.raceMeteo}></View>
+      <View style={styles.raceMeteo}>
+        {Object.keys(item.meteo).length !== 0 ? (
+          <Image
+            style={styles.raceMeteoImage}
+            source={{
+              uri:
+                "http://openweathermap.org/img/wn/" +
+                item.meteo.icon +
+                "@4x.png",
+            }}
+          />
+        ) : (
+          <View />
+        )}
+      </View>
     </View>
   );
 };
+/*  */
 
 const ChartTab = ({ route }) => {
   const context = useContext(ChampionshipsContext);
@@ -350,7 +588,46 @@ const ChartItem = ({ item, index }) => {
 };
 
 const InfoTab = () => {
-  return <View></View>;
+  const context = useContext(ChampionshipsContext);
+  const renderSettings = ({ item }) => {
+    return (
+      <View style={styles.infoContainer}>
+        <Text style={styles.infoTextTitle}>{item.tipo} : </Text>
+        <Text style={styles.infoText}>{item.valore}</Text>
+      </View>
+    );
+  };
+  const renderAuto = ({ item }) => {
+    return (
+      <View>
+        <Text style={[styles.infoText, { alignSelf: "baseline" }]}>
+          {item.modello}
+        </Text>
+      </View>
+    );
+  };
+  return (
+    <SafeAreaView>
+      <FlatList
+        data={context.singleChampionship.impostazioni_gioco}
+        renderItem={renderSettings}
+        keyExtractor={(item) => item.tipo}
+        scrollEnabled={false}
+      />
+      <View style={[styles.infoContainerCar]}>
+        <Text style={[styles.infoTextTitle, { alignSelf: "flex-start" }]}>
+          Lista auto:
+        </Text>
+        <FlatList
+          data={context.singleChampionship.lista_auto}
+          renderItem={renderAuto}
+          keyExtractor={(item) => item.modello}
+          scrollEnabled={false}
+          style={{ flex: 1 }}
+        />
+      </View>
+    </SafeAreaView>
+  );
 };
 
 const BodyChampionship = ({ navigation, idCampionato }) => {
@@ -446,6 +723,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
   },
+  infoContainer: {
+    paddingTop: 10,
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "baseline",
+    alignContent: "center",
+  },
+  infoContainerCar: {
+    paddingTop: 20,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "baseline",
+    alignContent: "center",
+  },
+  infoText: { fontSize: 17 },
+  infoTextCar: {
+    fontSize: 17,
+    width: Dimensions.get("window").width * 0.7,
+  },
+  infoTextTitle: { fontSize: 20, fontWeight: "bold" },
   infoTitle: {
     fontSize: 20,
     fontWeight: "bold",
@@ -468,6 +768,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end",
     marginBottom: "8%",
+  },
+  modalView: {
+    flex: 0.6,
+    flexDirection: "column",
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    paddingBottom: 50,
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 3,
+      height: 3,
+    },
+    shadowOpacity: 1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   raceDateView: { flexDirection: "row", justifyContent: "space-evenly" },
   raceInfo: {
@@ -495,7 +813,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   raceLogoImage: { height: 75, width: 75, resizeMode: "contain" },
-  raceMeteo: { flex: 0.7, backgroundColor: "green" },
+  raceMeteo: { flex: 0.7, justifyContent: "center", alignItems: "center" },
+  raceMeteoImage: { height: 50, width: 50 },
   raceTitleView: { alignItems: "center" },
 });
 export default championshipScreen;
